@@ -1,0 +1,24 @@
+.leafletMap {
+    height: 100%;
+    background: green;
+}
+
+.leaflet-container {
+    height: 100%;
+}
+
+.legend {
+    background-color: white;
+    border-radius: 4px;
+}
+
+.legend svg {
+    padding: 0 8px;
+}
+
+.slider {
+    background: white;
+    padding: 5px;
+    border-radius: 4px;
+    text-align: center;
+}
