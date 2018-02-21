@@ -10,14 +10,27 @@ import parseCSVElectionData from "./Utils/ElectionDataParser";
 import RaceSelect from './Components/RaceSelect';
 import ElectionDetailWindow from './Components/ElectionDetailWindow';
 import MapConfigSelect from './Components/MapConfigSelect';
+import { resolve } from 'url';
+import election1 from '../public/elections/20141104_FranklinPrecincts.csv';
+import election2 from '../public/elections/20161108_FranklinPrecincts.csv';
+import election3 from '../public/elections/20170801_FranklinPrecincts.csv';
+import election4 from '../public/elections/20171107_FranklinPrecincts.csv';
+
+
+var votingPrct;
+
+import('../public/geojson/voting_prct.json').then(data => {
+  votingPrct = data;
+});
+
 
 class App extends Component {
   
   /*
+  TODO Get the latest election from website (Nov 7 2017)
     TODO table? (how would this look with multipel canidates? big table)
     TODO if you are on a election, and race, then click election box, but dont change it
         dont reset the election
-    TODO get this hosted someplace
     TODO show winner of county race results in side bar (not just the selected precint)
       HERE: ElectionDetailWindow:167
     TODO find most ballots in a precint and show % voted for a particular race
@@ -240,7 +253,7 @@ class App extends Component {
 
   getGeoJson() {
     let self = this;
-    fetch("/geojson/voting_prct.json", {
+    /*fetch("/geojson/voting_prct.json", {
       method: 'GET',
       headers: {
         "Content-Type" : "application/json"
@@ -250,6 +263,21 @@ class App extends Component {
       if(!resp.ok) throw new Error(resp.status);
 
       return resp.json();
+    })*/
+    new Promise(function(res, rej) {
+      let i = 0;
+      function poll() {
+        i++
+        setTimeout(function() {
+          if (i >= 50) {rej();}
+          if(votingPrct === undefined)
+            poll();
+          else {
+            res(votingPrct);
+          }
+        },100);
+      }
+      poll();
     })
     .then(function(json) {
       self.setState({"geoJsonData": json});
@@ -263,19 +291,20 @@ class App extends Component {
     .then(() => {
       this.setState({
         allPossibleElections: [
-          {value: "20141104_FranklinPrecincts.csv", label: "Nov 04 2014"},
-          {value: "20161108_FranklinPrecincts.csv", label: "Nov 08 2016"},
-          {value: "20170801_FranklinPrecincts.csv", label: "Aug 01 2017"}
+          {value: "20141104_FranklinPrecincts.6cac1510.csv", label: "Nov 04 2014"},
+          {value: "20161108_FranklinPrecincts.82a9d4da.csv", label: "Nov 08 2016"},
+          {value: "20170801_FranklinPrecincts.6049b223.csv", label: "Aug 01 2017"},
+          {value: "20171107_FranklinPrecincts.3f940d61.csv", label: "Nov 11 2017"}
         ],
         //electionSelected : {value: "20141104_FranklinPrecincts.csv", label: "Nov 04 2014"}
       });
-      return {value: "20141104_FranklinPrecincts.csv", label: "Nov 04 2014"};
+      return {value: "20141104_FranklinPrecincts.6cac1510.csv", label: "Nov 04 2014"};
     })
     .then(this.downloadElectionData.bind(this))
   }
   downloadElectionData(selectedRace) {
     const self = this;
-    return fetch("/elections/" + selectedRace.value)
+    return fetch("static/media/" + selectedRace.value)
       .then(function(resp){
         if(!resp.ok) throw Error(resp.message);
         return resp.text();
