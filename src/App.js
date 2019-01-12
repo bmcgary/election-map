@@ -16,6 +16,7 @@ import election2 from '../public/elections/20161108_FranklinPrecincts.csv';
 import election3 from '../public/elections/20170801_FranklinPrecincts.csv';
 import election4 from '../public/elections/20171107_FranklinPrecincts.csv';
 import election5 from "../public/elections/20180807_FranklinPrecincts.csv";
+import election6 from "../public/elections/20181106_FranklinPrecincts.csv";
 
 var votingPrct;
 
@@ -68,7 +69,7 @@ class App extends Component {
                 amount: winAmount / totalVotesHere * 100
               };
               
-              if(winName === self.state.canidate2)
+              if(winName === [self.state.canidate1, self.state.canidate2].sort()[0])
                 winner.amount *= -1;
               
               return winner;
@@ -76,7 +77,7 @@ class App extends Component {
             axisValues: [-100,-80,-75,-50,0,50,75,80,100]
           }
         },
-        {
+        /*{
           label: "Winning percent", 
           value: {
             calculateResult : function(featureValue) {
@@ -102,7 +103,7 @@ class App extends Component {
             },
             axisValues: [0,10,20,50,100,200,300,750,1300]
           }
-        },
+        },*/
         {
           label: "Percent of total votes cast",
           value: {
@@ -151,7 +152,7 @@ class App extends Component {
       .forEach((d) => {
         //d here is a precint
         Object.entries(d[1])
-          .forEach(entry => {this.colorScale
+          .forEach(entry => {
             if(!canidateCounters[entry[0]])
               canidateCounters[entry[0]] = 0;
             canidateCounters[entry[0]] += entry[1];
@@ -295,7 +296,8 @@ class App extends Component {
           {value: "20161108_FranklinPrecincts.82a9d4da.csv", label: "Nov 08 2016"},
           {value: "20170801_FranklinPrecincts.6049b223.csv", label: "Aug 01 2017"},
           {value: "20171107_FranklinPrecincts.3f940d61.csv", label: "Nov 11 2017"},
-          {value: "20180807_FranklinPrecincts.3c3b4012.csv", label: "Aug 7 2018"}
+          {value: "20180807_FranklinPrecincts.3c3b4012.csv", label: "Aug 7 2018"},
+          {value: "20181106_FranklinPrecincts.a79e48d7.csv", label: "Nov 6 2018"}
         ],
         //electionSelected : {value: "20141104_FranklinPrecincts.csv", label: "Nov 04 2014"}
       });

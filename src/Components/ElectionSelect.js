@@ -13,6 +13,7 @@ class ElectionSelect extends Component {
     return (
       <Select
             name="Election Selection"
+            placeholder="Select an election to analyze"
             value={this.props.selectedOption}
             onChange={this.props.changeSelectedElection}
             options={this.props.electionOptions}

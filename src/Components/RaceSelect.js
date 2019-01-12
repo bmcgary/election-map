@@ -10,9 +10,11 @@ class RaceSelect extends Component {
   }
 
   render() {
+    console.log(this.props)
     return (
       <Select
             name="Race Selection"
+            placeholder={this.props.raceOptions ===undefined ? "First select an election" : "Select a race to analyze" }
             value={this.props.selectedOption}
             onChange={this.props.changeSelectedRace}
             options={this.props.raceOptions}
