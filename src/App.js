@@ -253,19 +253,19 @@ class App extends Component {
             }}
             getResult={this.getResult.bind(this)}
           />
-            <h5>Of Selected Precincts</h5>
+          {this.state.selectedFeatures ? 
           <ElectionDetailWindow
             precintData={this.selectedFeaturesParse(this.state.selectedFeatures)}
             highlightedFeature={{target: {feature: ""}}}
-            union={"Selected Features"}
+            union={"Selected Precinct(s)"}
             getResult={this.getResult.bind(this)}
-          />
+          /> : null }
       </div>
     )
   }
 
   selectedFeaturesParse(selectedIds) {
-    if (selectedIds === undefined) return {"Selected Features": {}};
+    if (selectedIds === undefined) return {"Selected Precinct(s)": {}};
     const data = this.getPrecintData();
     const results = selectedIds
     .reduce((totalsObj, id) => {
@@ -278,7 +278,7 @@ class App extends Component {
       });
       return totalsObj;
     }, {});
-    return {"Selected Features" : results};
+    return {"Selected Precinct(s)" : results};
   }
 
   getGeoJson() {
