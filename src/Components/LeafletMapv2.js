@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import * as d3 from "d3";
+import EventsHandler from "../Utils/EventsHandler";
 
 import 'leaflet/dist/leaflet.css';
 import '../css/leafletmap.css';
@@ -35,6 +36,7 @@ class LeafletMap extends Component {
         this.colorScale.range(alteredRange);
         this.fillOpacity = 1.0;
         this.selectedFeatures = [];
+        this.selectedPrecints = [];
 
         d3.selection.prototype.moveToFront = function() {  
             return this.each(function(){
@@ -111,8 +113,11 @@ class LeafletMap extends Component {
         .attr("fill", d => this.colorScale.range()[d + 1])
         .attr("stroke", "black")
         .on("click", d => {
+            //TODO don't allow click if no election selected
+
             //when you click on a rect select all features that have that rects color
             this.selectedFeatures.length = 0;
+            this.selectedPrecints.length = 0;
 
             d3.selectAll(".legend_rect")
                 .attr("stroke-width", null);
@@ -154,11 +159,14 @@ class LeafletMap extends Component {
                         //100 is black, so just go under 100 to get the color
                         //TODO FIX THIS TO WORK OFF DYNAMIC MAX (test any election with only one person and on 'Winner percent')
                     result = result >= 100 ? result - .00001 : result;
-                    if(this.colorScale(result) === this.colorScale.range()[d + 1])
+                    if(this.colorScale(result) === this.colorScale.range()[d + 1]) {
                         this.selectedFeatures.push(layer.feature.properties.id);
+                        this.selectedPrecints.push(parseInt(layer.feature.properties.label.replace(/\D/g,"")) )
+                    }
                     
                 });
             }
+            EventsHandler.fire("selection-changed", this.selectedPrecints)
             this.updateChoropleth();
         })
 
@@ -316,25 +324,32 @@ class LeafletMap extends Component {
             callback(e, layer, layer.feature.properties)
     }
     featureClickHandler(e, layer, properties) {
+        const precintId = parseInt(properties.label.replace(/\D/g,""));
         if(e.originalEvent.ctrlKey || e.originalEvent.metaKey) {
             const arrIndex = this.selectedFeatures.indexOf(properties.id);
+            const arr2Index = this.selectedPrecints.indexOf(precintId);
             if(arrIndex > -1) { //remove it
                 this.selectedFeatures.splice(arrIndex, 1);
+                this.selectedPrecints.splice(arr2Index, 1);
                 layer.bringToBack();
             }
             else { //add it
                 this.selectedFeatures.push(properties.id);
+                this.selectedPrecints.push(precintId)
                 layer.bringToFront();
             }
         }
         else { //ctrl/meta not pressed. If its selected deselect, or vica versa
             const arrIndex = this.selectedFeatures.indexOf(properties.id);
             this.selectedFeatures.length = 0;
+            this.selectedPrecints.length = 0;
             if(arrIndex == -1) { //add it
                 this.selectedFeatures.push(properties.id);
                 layer.bringToFront();
+                this.selectedPrecints.push(precintId);
             }
         }
+        EventsHandler.fire("selection-changed", this.selectedPrecints)
         this.updateChoropleth();
     }
 

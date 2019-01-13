@@ -17,6 +17,7 @@ import election3 from '../public/elections/20170801_FranklinPrecincts.csv';
 import election4 from '../public/elections/20171107_FranklinPrecincts.csv';
 import election5 from "../public/elections/20180807_FranklinPrecincts.csv";
 import election6 from "../public/elections/20181106_FranklinPrecincts.csv";
+import EventsHandler from './Utils/EventsHandler';
 
 var votingPrct;
 
@@ -122,6 +123,10 @@ class App extends Component {
     this.state.selectedMapSetting = this.state.mapSettings[0];
     this.getGeoJson();
     this.getElections();
+
+    EventsHandler.on("selection-changed", selectedFeatures => {
+      this.setState({selectedFeatures});
+    })
   }
 
   electionDataChanged(selectedOption) {
@@ -248,8 +253,32 @@ class App extends Component {
             }}
             getResult={this.getResult.bind(this)}
           />
+            <h5>Of Selected Precincts</h5>
+          <ElectionDetailWindow
+            precintData={this.selectedFeaturesParse(this.state.selectedFeatures)}
+            highlightedFeature={{target: {feature: ""}}}
+            union={"Selected Features"}
+            getResult={this.getResult.bind(this)}
+          />
       </div>
     )
+  }
+
+  selectedFeaturesParse(selectedIds) {
+    if (selectedIds === undefined) return {"Selected Features": {}};
+    const data = this.getPrecintData();
+    const results = selectedIds
+    .reduce((totalsObj, id) => {
+      const precData = data[id];
+      if(precData === undefined) return totalsObj;
+      Object.entries(precData).forEach(([key,value]) => {
+        if(!totalsObj.hasOwnProperty(key))
+          totalsObj[key] = 0;
+        totalsObj[key] += value;
+      });
+      return totalsObj;
+    }, {});
+    return {"Selected Features" : results};
   }
 
   getGeoJson() {
